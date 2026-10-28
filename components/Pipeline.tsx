@@ -32,6 +32,23 @@ export function Pipeline() {
               signature, a vulnerability policy, and a deploy that opens no
               inbound ports. Walk each step.
             </p>
+            <div className="mt-6 u-hairline-top pt-4">
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2 w-2 shrink-0"
+                  style={{ background: "var(--color-signal)" }}
+                  aria-hidden
+                />
+                <Label style={{ color: "var(--color-signal)" }}>
+                  HARBOR IS THE HUB
+                </Label>
+              </div>
+              <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-bone-dim">
+                The private registry holds every image, runs the Trivy scan,
+                stores the Cosign signature, and enforces admission. Deploys pull
+                only from Harbor.
+              </p>
+            </div>
           </div>
 
           {/* stepper */}

@@ -36,9 +36,9 @@ export const pipeline = [
   {
     code: "P-01",
     key: "isolate",
-    title: "Isolated build",
-    actor: "Sysbox + BuildKit",
-    desc: "The pipeline runs inside a VM-grade isolated container. Root inside the build is an unprivileged user on the host. No privileged mode, no host escape.",
+    title: "Isolated build & push",
+    actor: "Sysbox + BuildKit → Harbor",
+    desc: "The pipeline builds inside a VM-grade isolated container (root in the build is unprivileged on the host) and pushes the image to Harbor, the private registry that is the hub for everything that follows.",
   },
   {
     code: "P-02",
@@ -58,29 +58,29 @@ export const pipeline = [
     code: "P-04",
     key: "sign",
     title: "Image signing",
-    actor: "Cosign",
-    desc: "The built image is cryptographically signed. Signatures live in the registry as artifacts. Signing runs fully offline — no transparency-log upload, no internet.",
+    actor: "Cosign → Harbor",
+    desc: "The image in Harbor is cryptographically signed. The signature is stored back in Harbor as an OCI artifact linked to the image. Signing runs fully offline — no transparency-log upload, no internet.",
   },
   {
     code: "P-05",
     key: "scan",
     title: "Vulnerability scan",
-    actor: "Trivy",
-    desc: "The registry auto-scans every pushed image. A policy blocks pulls of images whose vulnerabilities exceed the environment's threshold.",
+    actor: "Trivy in Harbor",
+    desc: "Harbor auto-scans every image on push with Trivy. A per-environment policy blocks pulls of images whose vulnerabilities exceed the threshold — stricter in production than development.",
   },
   {
     code: "P-06",
     key: "admit",
     title: "Admission",
-    actor: "Registry policy",
-    desc: "Only a signed image that passed scanning is admissible. Unsigned or vulnerable images are refused at pull time, before they can run.",
+    actor: "Harbor policy",
+    desc: "Harbor is the gatekeeper: only an image that is signed and passed scanning is admissible. Unsigned or vulnerable images are refused at pull time, before they can run.",
   },
   {
     code: "P-07",
     key: "deploy",
     title: "GitOps deploy",
-    actor: "Edge agent",
-    desc: "A central manager updates the environment; an outbound-only edge agent on the deploy host pulls the new image. No inbound port is ever opened on the deploy server.",
+    actor: "Portainer + edge agent",
+    desc: "A central manager (Portainer) updates the environment; an outbound-only edge agent on the deploy host pulls the admitted image from Harbor. No inbound port is ever opened on the deploy server.",
   },
 ];
 
@@ -132,6 +132,138 @@ export const layers = [
     proves: "No known-critical image reaches a running environment.",
   },
 ];
+
+/* Per-layer evidence shown in the "Run check" drawer. Each is a real check the
+   layer performs, with illustrative-but-realistic output. Lines are typed so the
+   drawer can color them (cmd / out / ok / warn / deny / dim). "whatIfFails" shows
+   the opposite outcome so the gate's teeth are visible, not just the happy path.
+   L-1 deliberately verifies RUNTIME CONFIG (not the uid_map, which the dedicated
+   Build Isolation section already demonstrates) and links to that section. */
+export type EvidenceLine = {
+  k: "cmd" | "out" | "ok" | "warn" | "deny" | "dim";
+  t: string;
+};
+
+export const evidence: Record<
+  string,
+  {
+    heading: string;
+    sub: string;
+    lines: EvidenceLine[];
+    whatIfFails: { label: string; lines: EvidenceLine[] };
+    seeAlso?: { label: string; href: string };
+  }
+> = {
+  "L-1": {
+    heading: "Runtime is Sysbox, and the container holds no privilege",
+    sub: "This check confirms the isolation is actually configured — not just assumed.",
+    lines: [
+      { k: "cmd", t: "$ docker info --format '{{.Runtimes}}'" },
+      { k: "out", t: "map[runc:... sysbox-runc:...]" },
+      { k: "cmd", t: "$ cat /etc/gitlab-runner/config.toml | grep runtime" },
+      { k: "ok", t: "  runtime = \"sysbox-runc\"" },
+      { k: "cmd", t: "$ grep privileged config.toml" },
+      { k: "ok", t: "  privileged = false" },
+      { k: "cmd", t: "# can the build reach the host docker socket?" },
+      { k: "cmd", t: "$ docker -H unix:///var/run/docker.sock ps" },
+      { k: "deny", t: "Cannot connect: socket not mounted into the build" },
+      { k: "ok", t: "RESULT · isolation configured — VM-grade, unprivileged" },
+    ],
+    whatIfFails: {
+      label: "If the runner were privileged / plain runc",
+      lines: [
+        { k: "warn", t: "  runtime = \"runc\"   privileged = true" },
+        { k: "deny", t: "build could mount the host socket → control every container" },
+        { k: "deny", t: "a compromised build escapes to the host — fail" },
+      ],
+    },
+    seeAlso: { label: "See the full UID-mapping demo", href: "#isolation" },
+  },
+  "L-2": {
+    heading: "Quality gate evaluated against the project profile",
+    sub: "Static analysis runs before the image is built; production requires a pass.",
+    lines: [
+      { k: "cmd", t: "$ sonar-scanner -Dsonar.qualitygate.wait=true" },
+      { k: "dim", t: "ANALYSIS · 428 files · 36,210 lines" },
+      { k: "out", t: "Bugs ................ 0" },
+      { k: "out", t: "Vulnerabilities ..... 0" },
+      { k: "warn", t: "Security hotspots ... 2  (to review)" },
+      { k: "out", t: "Code smells ......... 14 (A)" },
+      { k: "out", t: "Coverage ............ 71.4%   Duplication 1.9%" },
+      { k: "ok", t: "QUALITY GATE · PASSED" },
+    ],
+    whatIfFails: {
+      label: "If the gate fails in production",
+      lines: [
+        { k: "deny", t: "Reliability rating D (new bugs) · gate FAILED" },
+        { k: "deny", t: "pipeline stops — no image is built or shipped" },
+      ],
+    },
+  },
+  "L-3": {
+    heading: "SAST decision at the staging gate",
+    sub: "A blocking merge-request check. Over threshold = merge physically blocked.",
+    lines: [
+      { k: "cmd", t: "$ cx-flow --scan --bug-tracker=GITLABMERGE" },
+      { k: "dim", t: "SAST · scanning merge request → staging" },
+      { k: "out", t: "High ..... 0" },
+      { k: "warn", t: "Medium ... 1" },
+      { k: "out", t: "Low ...... 10" },
+      { k: "dim", t: "threshold · High = 0  →  evaluated" },
+      { k: "ok", t: "GATE · PASSED · findings posted to MR" },
+    ],
+    whatIfFails: {
+      label: "If a High finding appears",
+      lines: [
+        { k: "deny", t: "High ..... 1   (SQL injection · sink reached)" },
+        { k: "deny", t: "threshold High=0 exceeded → break-build" },
+        { k: "deny", t: "merge request BLOCKED — cannot merge to staging" },
+      ],
+    },
+  },
+  "L-4": {
+    heading: "Signature and digest verified against the trusted key",
+    sub: "Provenance check: the running image is the exact artifact the pipeline signed.",
+    lines: [
+      { k: "cmd", t: "$ cosign verify --key cosign.pub $IMAGE" },
+      { k: "ok", t: "Verified OK — signature is valid" },
+      { k: "out", t: "subject  : pipeline@ci  (key-pair, offline)" },
+      { k: "out", t: "digest   : sha256:9f2a…e71c" },
+      { k: "out", t: "running  : sha256:9f2a…e71c   ✓ match" },
+      { k: "dim", t: "# signature stored in Harbor as an OCI artifact" },
+      { k: "ok", t: "ADMIT · signed by the real pipeline" },
+    ],
+    whatIfFails: {
+      label: "If the image was side-loaded / unsigned",
+      lines: [
+        { k: "cmd", t: "$ cosign verify --key cosign.pub $IMAGE" },
+        { k: "deny", t: "error: no matching signatures" },
+        { k: "deny", t: "admission policy REFUSES the pull — it never runs" },
+      ],
+    },
+  },
+  "L-5": {
+    heading: "Registry scan evaluated against the environment policy",
+    sub: "Every image is scanned on push; the pull policy is stricter in production.",
+    lines: [
+      { k: "dim", t: "# Harbor auto-scans every image on push" },
+      { k: "cmd", t: "$ trivy image --severity CRITICAL,HIGH $IMAGE" },
+      { k: "dim", t: "SCAN · os packages + app dependencies" },
+      { k: "out", t: "CRITICAL ... 0" },
+      { k: "warn", t: "HIGH ....... 1  (fix available)" },
+      { k: "out", t: "MEDIUM ..... 6     LOW ... 23" },
+      { k: "dim", t: "registry policy · block on CRITICAL  →  evaluated" },
+      { k: "ok", t: "PULL · ALLOWED" },
+    ],
+    whatIfFails: {
+      label: "If a CRITICAL CVE is present",
+      lines: [
+        { k: "deny", t: "CRITICAL ... 1  (CVE-XXXX · RCE)" },
+        { k: "deny", t: "prod policy blocks the pull → deploy fails closed" },
+      ],
+    },
+  },
+};
 
 /* Supply-chain attack scenarios the visitor can fire at the chain. */
 export const attacks = [
