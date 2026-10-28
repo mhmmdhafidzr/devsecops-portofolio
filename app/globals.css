@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@import "@fontsource-variable/archivo";
+@import "@fontsource-variable/archivo/wght-italic.css";
+@import "@fontsource-variable/jetbrains-mono";
+
+/*
+  SECURE DELIVERY DATASHEET — design tokens
+  Disciplined palette: near-black ground, bone text, muted gray, ONE signal accent.
+  Color is restrained by contract; the accent marks only what is "live" / verified.
+*/
+
+@theme {
+  --color-ink: #0a0a0b; /* ground */
+  --color-ink-2: #121214; /* raised panel */
+  --color-ink-3: #1a1a1d; /* hairline fill */
+  --color-bone: #e7e7e4; /* primary text */
+  --color-bone-dim: #a4a49e; /* secondary text (tinted off the bone, never flat gray) */
+  --color-bone-faint: #6d6d67; /* micro-labels */
+  --color-rule: #2a2a2e; /* grid + rule lines */
+  --color-rule-bright: #3a3a40;
+  --color-signal: #ff4d1c; /* the one accent */
+  --color-signal-dim: #b83814;
+  --color-verify: #41d18e; /* reserved: VERIFIED / admitted state only */
+  --color-deny: #ff4d1c; /* reuse signal for DENIED (keeps palette tight) */
+
+  --font-display: "Archivo Variable", "Archivo", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+
+  --tracking-label: 0.22em;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: var(--color-rule);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-display);
+    font-feature-settings: "ss01", "cv01";
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* --- Themed browser surfaces (not browser defaults) --- */
+  ::selection {
+    background: var(--color-signal);
+    color: var(--color-ink);
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+    border-left: 1px solid var(--color-rule);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-rule-bright);
+    border: 3px solid var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-bone-faint);
+  }
+  html {
+    scrollbar-color: var(--color-rule-bright) var(--color-ink);
+    scrollbar-width: thin;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+
+  /* Tabular numerals everywhere data is shown */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@layer utilities {
+  /* Micro-label: the datasheet's small tracked caps */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-bone-faint);
+    line-height: 1;
+  }
+
+  .u-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The visible column grid — a datasheet is ruled */
+  .u-grid-lines {
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-rule) 55%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: calc(100% / 12) 100%;
+  }
+
+  .u-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 125%;
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+    text-wrap: balance;
+  }
+
+  .u-hairline-top {
+    border-top: 1px solid var(--color-rule);
+  }
+  .u-hairline-bottom {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  /* Honest brutalist flat shadow — this world chose it, so it is earned */
+  .u-plate {
+    background: var(--color-ink-2);
+    border: 1px solid var(--color-rule);
+  }
+
+  @keyframes ping {
+    75%,
+    100% {
+      transform: scale(2.2);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "title": "Choose the visual world",
+  "question": "You pinned Swiss editorial / brutalist-tech, and a pinned brief beats the roll — so that world leads here, already raised by the roll's assigned direction and the challengers it beat. Lock it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Secure Delivery Datasheet",
+      "kicker": "THE ROLL",
+      "lineage": "Swiss technical datasheet / component spec-sheet + supply-chain provenance seal",
+      "thesis": "Your platform read as one engineered component datasheet, where every security property is a measured, stamped, verifiable spec — not a marketing adjective.",
+      "palette": ["#0A0A0B", "#E7E7E4", "#8C8C86", "#FF4D1C"],
+      "materials": ["strict spec-sheet grid", "oversized grotesk display type", "barcode / rule-line dividers", "VERIFIED provenance stamps"],
+      "viewport": "Near-black full-bleed. A giant tegas headline (role + the platform's one-sentence claim) pinned to a visible 12-column grid; a thin top rule carries micro-labels (name, role, a spec code, contact); one signal-orange accent marks the only 'live' element. Primary action (Contact / See the architecture) sits top-right on the rule line.",
+      "risk": "Brutalist grids read cold or sterile if the type is set timidly or the single accent is used everywhere; the whole bet is nerve in the typography and restraint in the color.",
+      "raised": [
+        {
+          "from": "roll-assignment (provenance seal, index 4)",
+          "raise": "Every security claim carries a provenance ritual: a spec starts UNVERIFIED and resolves to a stamped VERIFIED state on interaction, so the supply-chain story (sign -> scan -> admit) is literally the page's visual language."
+        },
+        {
+          "from": "challenger: tdr-info-noise-sleeve",
+          "raise": "Registration/certification marks and declared density tiers become real UI: section headers carry stamped spec codes, and dense regions shed ornament in named steps instead of just shrinking."
+        },
+        {
+          "from": "challenger: signals-instruments-vu-meter-bridge",
+          "raise": "The one live accent element is a true metered 'signal strip' with weighted motion (pipeline stage / layer status), not an instant toggle, so the page has one honest moving instrument."
+        },
+        {
+          "from": "challenger: cinema-hand-processed-film-bloom",
+          "raise": "State changes are bound to exact pipeline events (push, build, SAST gate, sign, scan, admit) rather than applied as generic hover decoration."
+        },
+        {
+          "from": "challenger: skeuomorph-leather-studio",
+          "raise": "Interactive demos give tactile, legible state feedback (a gate visibly latches, a rejected image visibly bounces) so the security mechanics are felt, not just labeled."
+        }
+      ],
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "top rule: name / role / spec code / contact", "x": 0, "y": 0, "w": 12, "h": 1, "accent": true},
+        {"label": "oversized headline claim", "x": 0, "y": 1, "w": 9, "h": 4},
+        {"label": "live signal strip", "x": 9, "y": 1, "w": 3, "h": 4, "accent": true},
+        {"label": "5-layer security spec column", "x": 0, "y": 5, "w": 4, "h": 5},
+        {"label": "git push -> deploy flow", "x": 4, "y": 5, "w": 8, "h": 3},
+        {"label": "barcode divider / section index", "x": 4, "y": 8, "w": 8, "h": 2}
+      ]}
+    },
+    {
+      "id": "challenger-tdr",
+      "label": "Hostile-Brand Info Noise",
+      "kicker": "IMPECCABLE’S PICK",
+      "verdict": "competitive",
+      "lineage": "The Designers Republic info-noise sleeve",
+      "thesis": "The same brutalist world turned to maximum energy: hazard grotesk, registration marks, and immaculate information density as the material itself.",
+      "palette": ["#000000", "#FF008C", "#FF6A00", "#FFFFFF"],
+      "materials": ["condensed hazard grotesk", "faux-certification roundels", "registration marks", "edge-tight density grid"],
+      "viewport": "Absolute black with one enormous condensed word shouting through layered warning glyphs, spec codes, and roundels gridded tight to the edge; the security layers read as stacked hazard classes.",
+      "case": "Holds the audience-identification axis hard — this is brutalist-tech at full volume and DevSecOps people love it. Loses the clarity axis: density-as-material can bury the step-by-step pipeline flow a recruiter needs to follow, which is why it informs the lead rather than leading.",
+      "risk": "Gorgeous but louder than it is legible; a non-specialist recruiter can bounce off pure information noise before they reach the proof.",
+      "hero": "https://impeccable.style/worlds/cards/tdr-info-noise-sleeve-hero.webp"
+    },
+    {
+      "id": "challenger-ansi",
+      "label": "Terminal / BBS Nightboard",
+      "verdict": "competitive",
+      "lineage": "dial-up ANSI bulletin board, CP437 character grid",
+      "thesis": "The platform as a live terminal: pipeline logs stream in line-by-line at modem cadence, everything on a strict character grid.",
+      "palette": ["#06110C", "#27E67A", "#00B3FF", "#E8E8E8"],
+      "materials": ["monospace character grid", "streamed line-by-line reveal", "box-drawing rules", "phosphor accents"],
+      "viewport": "Terminal-black 80-column grid; a title screen pours in at modem speed, numbered menu rows navigate sections, pipeline events land as live textmode events.",
+      "case": "Wins the audience-identification axis (every security engineer lives in a terminal) and the git-push story is native here. Competitive, not winning: a full-terminal world fights the 'instantly legible to a non-specialist recruiter' requirement, so it stays an alternate rather than the build.",
+      "risk": "Can read as retro-novelty and intimidate non-engineer recruiters; the live log motif is better borrowed into the datasheet than run as the whole page.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-ansi-bbs-nightboard-hero.webp"
+    },
+    {
+      "id": "challenger-vu",
+      "label": "VU-Meter Bridge",
+      "verdict": "declined",
+      "lineage": "recording-desk vu-meter bridge, true ballistic needles",
+      "palette": ["#141210", "#F3ECD8", "#C0392B"],
+      "materials": ["ballistic needle meters", "glass + steel desk frame", "warm ivory scale faces"],
+      "case": "Fuses weakly: a row of identical meters reads the 'room' at a glance but can't carry a 5-layer sequence or a push->deploy flow, which are the product's spine.",
+      "kept": "True instrument ballistics — motion with mass and damping, never instant values.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-vu-meter-bridge-hero.webp"
+    },
+    {
+      "id": "challenger-film",
+      "label": "Hand-Processed 16mm Film",
+      "verdict": "declined",
+      "lineage": "hand-processed film strip, light leaks, emulsion artifacts",
+      "palette": ["#0C0C0C", "#B8BBB4", "#E0661F"],
+      "materials": ["silver emulsion grain", "orange light-leak flare", "sprocket edge-code"],
+      "case": "Fuses poorly: the audience doesn't identify DevSecOps with cinematography, and emulsion artifacts obscure rather than clarify a security flow.",
+      "kept": "Artifacts bound to exact frames/events instead of a generic filter.",
+      "hero": "https://impeccable.style/worlds/cards/cinema-cinematography-editing-hand-processed-film-bloom-hero.webp"
+    },
+    {
+      "id": "challenger-leather",
+      "label": "Skeuomorph Leather Studio",
+      "verdict": "declined",
+      "lineage": "stitched-leather reading shelf, rendered physical objects",
+      "palette": ["#3A2A1C", "#EFE5D0", "#8A5A2B"],
+      "materials": ["saddle leather + stitching", "walnut shelf wood", "torn paper pages"],
+      "case": "Fuses poorly and contradicts the pinned brutalist world outright: warm handmade objects are the opposite of a bank-grade engineered-security story.",
+      "kept": "Tactile, legible state feedback on every control.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-skeuomorph-leather-studio-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "The default engineer-portfolio: dark theme, Inter, a timeline, neon-accent cards, a skills grid — executed cleanly.",
+    "palette": ["#0D1117", "#E6EDF3", "#2F81F7"],
+    "materials": ["clean dark grid", "system sans", "glow-accent cards"],
+    "viewport": "Centered hero with name + role, a horizontal tech-logo strip, scroll to a vertical timeline and a skills matrix.",
+    "risk": "Indistinguishable from thousands of other engineer portfolios; safe, forgettable, and the opposite of the brief's 'no AI slop'."
+  },
+  "steer": true
+}
