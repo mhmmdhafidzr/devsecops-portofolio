@@ -18,15 +18,15 @@ export function AirgapIac() {
             Built to run where the internet doesn&apos;t reach.
           </h2>
           <p className="text-lg leading-relaxed text-bone-dim lg:col-span-4">
-            Banking and high-security networks have no public egress. This
-            platform assumes that from the start — nothing in the critical path
-            needs to phone home.
+            Banking and high-security networks restrict public egress. The build
+            and deploy path never reaches the internet; the only outbound traffic
+            is two caches you control — and pre-seed them, and even that goes away.
           </p>
         </div>
       </Reveal>
 
       {/* air-gap specs */}
-      <div className="mt-12 grid grid-cols-1 gap-px bg-[var(--color-rule)] md:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-12 grid grid-cols-1 gap-px bg-[var(--color-rule)] md:grid-cols-2 lg:grid-cols-4">
         {airgap.map((a, i) => (
           <Reveal key={a.code} delay={i * 0.05} className="h-full">
             <div className="flex h-full flex-col bg-[var(--color-ink)] p-5">
@@ -40,6 +40,27 @@ export function AirgapIac() {
             </div>
           </Reveal>
         ))}
+        {/* closing tile — turns the grid's last cell into a deliberate stamp */}
+        <Reveal delay={airgap.length * 0.05} className="h-full">
+          <div className="flex h-full flex-col items-start justify-between gap-6 bg-[var(--color-ink)] p-5">
+            <Label>SPEC · AG</Label>
+            <div>
+              <span
+                className="u-mono inline-block border px-2 py-1 text-[0.625rem] font-bold uppercase tracking-[0.2em]"
+                style={{
+                  color: "var(--color-verify)",
+                  borderColor: "var(--color-verify)",
+                  background: "color-mix(in srgb, var(--color-verify) 10%, transparent)",
+                }}
+              >
+                AIR-GAP READY
+              </span>
+              <p className="mt-3 text-sm leading-relaxed text-bone-faint">
+                Every item above holds with egress closed.
+              </p>
+            </div>
+          </div>
+        </Reveal>
       </div>
 
       {/* secrets, centralized */}
